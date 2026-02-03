@@ -6,6 +6,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+// Configure button handler
+document.getElementById('configBtn').addEventListener('click', () => {
+  const apiKeySection = document.getElementById('apiKeySection');
+  apiKeySection.classList.toggle('visible');
+});
+
 // Save API key
 document.getElementById('saveKeyBtn').addEventListener('click', async () => {
   const apiKey = document.getElementById('apiKey').value.trim();
@@ -16,26 +22,49 @@ document.getElementById('saveKeyBtn').addEventListener('click', async () => {
   
   await chrome.storage.local.set({ geminiApiKey: apiKey });
   showResponse('API key saved successfully!');
+  
+  // Hide the config section after saving
+  setTimeout(() => {
+    document.getElementById('apiKeySection').classList.remove('visible');
+  }, 1000);
 });
 
 // Ask Gemini button handler
 document.getElementById('askBtn').addEventListener('click', async () => {
   const question = document.getElementById('question').value.trim();
-  const apiKey = document.getElementById('apiKey').value.trim();
-  
-  if (!apiKey) {
-    showError('Please enter and save your Gemini API key first');
-    return;
-  }
   
   if (!question) {
     showError('Please enter a question');
     return;
   }
   
+  await processQuery(question, 'askBtn');
+});
+
+// Summarize button handler
+document.getElementById('summarizeBtn').addEventListener('click', async () => {
+  await processQuery('Please provide a comprehensive summary of this webpage, including the main topic, key points, and any important details.', 'summarizeBtn');
+});
+
+// Common function to process queries
+async function processQuery(question, buttonId) {
+  // Get API key from storage
+  const result = await chrome.storage.local.get(['geminiApiKey']);
+  const apiKey = result.geminiApiKey;
+  
+  if (!apiKey) {
+    showError('Please configure your Gemini API key first');
+    return;
+  }
+  
   // Disable button and show loading
+  const btn = document.getElementById(buttonId);
   const askBtn = document.getElementById('askBtn');
+  const summarizeBtn = document.getElementById('summarizeBtn');
+  
+  btn.disabled = true;
   askBtn.disabled = true;
+  summarizeBtn.disabled = true;
   showResponse('Analyzing webpage and generating response...', true);
   
   try {
@@ -62,9 +91,11 @@ document.getElementById('askBtn').addEventListener('click', async () => {
     console.error('Error:', error);
     showError(`Error: ${error.message}`);
   } finally {
+    btn.disabled = false;
     askBtn.disabled = false;
+    summarizeBtn.disabled = false;
   }
-});
+}
 
 // Function to extract page content (runs in page context)
 function extractPageContent() {
@@ -93,7 +124,7 @@ function extractPageContent() {
 
 // Query Gemini API
 async function queryGemini(apiKey, question, pageContent) {
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent`;
   
   // Sanitize title and URL to prevent prompt injection
   const sanitizedTitle = (pageContent.title || 'Untitled').substring(0, 200);

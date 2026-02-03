@@ -5,6 +5,7 @@
   "description": "Ask Gemini questions about any webpage by analyzing its content",
   "permissions": [
     "activeTab",
+    "scripting",
     "storage"
   ],
   "action": {
