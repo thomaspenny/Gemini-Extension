@@ -23,3 +23,7 @@ Thumbs.db
 
 # SVG source files (we only need PNGs for the extension)
 icons/*.svg
+
+# Test and demo files
+test-page.html
+demo.html

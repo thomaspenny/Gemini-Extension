@@ -93,12 +93,16 @@ function extractPageContent() {
 
 // Query Gemini API
 async function queryGemini(apiKey, question, pageContent) {
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent`;
+  
+  // Sanitize title and URL to prevent prompt injection
+  const sanitizedTitle = (pageContent.title || 'Untitled').substring(0, 200);
+  const sanitizedUrl = (pageContent.url || 'Unknown URL').substring(0, 500);
   
   const prompt = `You are analyzing a webpage. Here are the details:
 
-Title: ${pageContent.title}
-URL: ${pageContent.url}
+Title: ${sanitizedTitle}
+URL: ${sanitizedUrl}
 ${pageContent.truncated ? '(Content truncated to fit limits)' : ''}
 
 Page Content:
@@ -119,7 +123,8 @@ Please provide a helpful and accurate answer based on the webpage content above.
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey
     },
     body: JSON.stringify(requestBody)
   });
@@ -148,6 +153,10 @@ function showResponse(message, isLoading = false) {
 // Helper function to display errors
 function showError(message) {
   const responseBox = document.getElementById('response');
-  responseBox.innerHTML = `<div class="error">${message}</div>`;
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'error';
+  errorDiv.textContent = message; // Use textContent to prevent XSS
+  responseBox.innerHTML = '';
+  responseBox.appendChild(errorDiv);
   responseBox.className = 'response-box';
 }
