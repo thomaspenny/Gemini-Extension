@@ -174,11 +174,52 @@ Please provide a helpful and accurate answer based on the webpage content above.
   return data.candidates[0].content.parts[0].text;
 }
 
+// Convert markdown to HTML
+function markdownToHtml(markdown) {
+  let html = markdown;
+  
+  // Convert **bold** to <strong>
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  
+  // Convert bullet points to <ul><li>
+  // Handle multiple consecutive bullets as a list
+  html = html.replace(/^(\s*\*\s+.+)(\n\s*\*\s+.+)*/gm, (match) => {
+    const items = match.split('\n').map(line => {
+      const content = line.replace(/^\s*\*\s+/, '');
+      return content ? `<li>${content}</li>` : '';
+    }).filter(item => item).join('');
+    return `<ul>${items}</ul>`;
+  });
+  
+  // Convert line breaks to paragraphs (avoid double spacing after lists)
+  html = html.split('\n\n').map(para => {
+    para = para.trim();
+    if (!para) return '';
+    if (para.startsWith('<ul>') || para.startsWith('<li>')) return para;
+    return `<p>${para}</p>`;
+  }).join('');
+  
+  // Clean up any remaining single line breaks within paragraphs
+  html = html.replace(/<p>([^<]+)<\/p>/g, (match, content) => {
+    return `<p>${content.replace(/\n/g, '<br>')}</p>`;
+  });
+  
+  return html;
+}
+
 // Helper function to display response
 function showResponse(message, isLoading = false) {
   const responseBox = document.getElementById('response');
-  responseBox.textContent = message;
-  responseBox.className = 'response-box' + (isLoading ? ' loading' : '');
+  
+  if (isLoading) {
+    responseBox.textContent = message;
+    responseBox.className = 'response-box loading';
+  } else {
+    // Convert markdown to HTML for formatted output
+    const htmlContent = markdownToHtml(message);
+    responseBox.innerHTML = htmlContent;
+    responseBox.className = 'response-box';
+  }
 }
 
 // Helper function to display errors
