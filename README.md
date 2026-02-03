@@ -4,11 +4,11 @@ A simple browser extension that allows you to ask Google Gemini AI questions abo
 
 ## Features
 
-- 🤖 **AI-Powered Analysis**: Uses Google's Gemini AI to understand and answer questions about webpage content
-- 🔍 **Smart Content Extraction**: Automatically extracts and analyzes visible text from any webpage
-- 💬 **Interactive Interface**: Clean, user-friendly popup interface for asking questions
-- 🔐 **Secure API Key Storage**: Safely stores your Gemini API key locally in the browser
-- ⚡ **Fast & Lightweight**: Minimal performance impact on browsing
+- **AI-Powered Analysis**: Uses Google's Gemini AI to understand and answer questions about webpage content
+- **Smart Content Extraction**: Automatically extracts and analyzes visible text from any webpage
+- **Interactive Interface**: Clean, user-friendly popup interface for asking questions
+- **Secure API Key Storage**: Safely stores your Gemini API key locally in the browser
+- **Fast & Lightweight**: Minimal performance impact on browsing
 
 ## Installation
 
@@ -124,4 +124,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Acknowledgments
 
 - Built with [Google Gemini API](https://ai.google.dev/)
-- Icon design uses gradient colors inspired by Google's AI branding
